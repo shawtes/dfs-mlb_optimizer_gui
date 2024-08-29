@@ -16,14 +16,14 @@ The optimization challenge in MLB DFS involves selecting a lineup that maximizes
 maximize ∑i=1nf(xi)subject to: ∑i=1ncixi≤B,∑i=1nxi position constraints,xi∈{0,1},maximize i=1∑nf(xi)subject to: i=1∑ncixi≤B,i=1∑nxi position constraints,xi∈{0,1},
 where:
 •	f(xi)  represents the expected fantasy points for player i.
-•	Ci is the cost (salary) of player ii.
+•	Ci is the cost (salary) of player i.
 •	B is the budget constraint (e.g., $50,000).
 •	Positional constraints include roster restrictions like having exactly one pitcher (P), one catcher (C), etc.
 This formulation is a variant of a mixed-integer linear program (MILP), seeking to maximize a submodular objective function under budget and position constraints.
  
 3. Model Overview
 3.1. Machine Learning Pipeline
-The machine learning pipeline employs advanced feature engineering, ensemble models, and time-series forecasting. Models like Ridge Regression, Lasso, Support Vector Regression (SVR), and Gradient Boosting are stacked using an XGBoost meta-model. Feature selection is achieved using Select K Best with the ff-regression scoring metric.
+The machine learning pipeline employs advanced feature engineering, ensemble models, and time-series forecasting. Models like Ridge Regression, Lasso, Support Vector Regression (SVR), and Gradient Boosting are stacked using an XGBoost meta-model. Feature selection is achieved using Select K Best with the f-regression scoring metric.
 3.2. Optimization Techniques
 The combinatorial optimization problem is modeled as an MILP where the objective is to maximize total projected points subject to constraints on player positions and salary. The model prioritizes diversification by considering the variance and correlation between players' performances.
  
@@ -48,7 +48,7 @@ maximize ∑p=1Nfpxpsubject to: ∑p=1Ncpxp≤B,∑p=1Nxp satisfies positional c
 Where:
 •	fp represents the projected fantasy points for player pp.
 •	cp is the salary for player p.
-•	xp is a binary decision variable indicating whether player pp is selected.
+•	xp is a binary decision variable indicating whether player p is selected.
 Advanced constraints consider real-world factors like variance reduction, diversification, and team stack preferences, optimizing for diversity across multiple lineups.
  
 10. Monte Carlo Simulations and Stochastic Optimization
@@ -106,15 +106,16 @@ RMSLE=1n∑i=1n(log⁡(1+y^i)−log⁡(1+yi))2.RMSLE=n1i=1∑n(log(1+y^i)−log(
 16. Integration of Optimization and Machine Learning
 The optimization and machine learning components work together by using model predictions as inputs into the optimization problem. The pipeline is mathematically represented as:
 y^=g(f(X;θ1);θ2),y^=g(f(X;θ1);θ2),
-where ff represents feature transformations and gg represents the final predictive model.
+where f represents feature transformations and g represents the final predictive model.
  
 17. Results and Comparative Analysis
 The evaluation process involves cross-validation strategies (k-fold, stratified sampling) to ensure model robustness. Performance metrics include:
 •	Mean Absolute Error (MAE)
 •	R2R2
 •	Mean Absolute Percentage Error (MAPE)
+
  
-18. Conclusion and Future Work
+19. Conclusion and Future Work
 This paper proposes a comprehensive approach to MLB DFS optimization that blends mathematical modeling with machine learning. Future directions include incorporating real-time data feeds, enhancing the combinatorial optimization model with dynamic programming, and extending the framework to other DFS sports.
  
 Glossary
