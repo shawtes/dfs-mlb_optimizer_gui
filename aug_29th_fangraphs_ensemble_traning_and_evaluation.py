@@ -427,7 +427,7 @@ if __name__ == "__main__":
         rolling_results_df = rolling_results_df.merge(test_df[['Name', 'date', 'calculated_dk_fpts']], on=['Name', 'date'], how='left', suffixes=('', '_true'))
 
         # Drop rows with NaN values in the true target or predictions
-        rolling_results_df.dropna(subset=['calculated_dk_fpts_true', 'predicted_dk_fpts'], inplace=True)
+        rolling_results_df.dropna(subset=['calculated_dk_fpts_true', 'predicted_dk_fpts'], inplace=True) 
 
         # When calling evaluate_model, add some debugging information
         print("Shape of rolling_results_df:", rolling_results_df.shape)
