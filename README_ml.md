@@ -73,5 +73,5 @@ Where γt(fj)γt(fj) is the importance of feature fjfj in tree tt.
 7. Conclusion
 This paper provides a detailed explanation of the Python script used for MLB DFS lineup optimization. By integrating mathematical theories and practical implementations, we demonstrate the power of machine learning and feature engineering in solving complex optimization problems in DFS. Future work could explore more sophisticated models and optimization techniques to further enhance lineup performance.
  
-This detailed breakdown includes all the mathematical theories and formulations used in the Python script, structured in a research-paper format. You can use this as a foundation for writing your own research paper, expanding on each section as needed.
+
 
