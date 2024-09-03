@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import joblib
 import concurrent.futures
 import time
@@ -8,10 +7,9 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import OneHotEncoder, StandardScaler, LabelEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
-from sklearn.linear_model import LinearRegression, Ridge, Lasso
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.linear_model import Ridge, Lasso
 from sklearn.svm import SVR
-from sklearn.ensemble import StackingRegressor, RandomForestRegressor, BaggingRegressor, VotingRegressor
+from sklearn.ensemble import StackingRegressor, VotingRegressor, GradientBoostingRegressor
 from xgboost import XGBRegressor
 from sklearn.feature_selection import SelectKBest, f_regression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, mean_absolute_percentage_error
@@ -141,6 +139,15 @@ def engineer_features(df, date_series=None):
             df[f'lag_max_fpts_{window}'] = df.groupby('Name')['calculated_dk_fpts'].transform(lambda x: x.rolling(window, min_periods=1).max().shift(1))
             df[f'lag_min_fpts_{window}'] = df.groupby('Name')['calculated_dk_fpts'].transform(lambda x: x.rolling(window, min_periods=1).min().shift(1))
 
+    # Calculate 5-game average
+    df['5_game_avg'] = df.groupby('Name')['calculated_dk_fpts'].transform(lambda x: x.rolling(5, min_periods=1).mean())
+    
+    # Handle zero values in 5-game average
+    df['5_game_avg'] = df['5_game_avg'].replace(0, np.nan).fillna(df['calculated_dk_fpts'].mean())
+    
+    # Debug: Print 5-game average calculation
+    print("5-game average calculation:", df[['Name', 'date', 'calculated_dk_fpts', '5_game_avg']].head(10))
+    
     # Fill missing values with 0
     df.fillna(0, inplace=True)
     
@@ -185,12 +192,6 @@ def create_synthetic_rows_for_all_players(df, all_players, prediction_date):
             synthetic_row['Name'] = player
             synthetic_row['has_historical_data'] = True
             
-            # Ensure 'calculated_dk_fpts' is included and calculated correctly
-            if 'calculated_dk_fpts' in player_df.columns:
-                synthetic_row['calculated_dk_fpts'] = player_df['calculated_dk_fpts'].mean()
-            else:
-                synthetic_row['calculated_dk_fpts'] = np.nan  # Placeholder, replace with actual calculation if needed
-            
             for col in player_df.select_dtypes(include=['object']).columns:
                 if col not in ['date', 'Name']:
                     synthetic_row[col] = player_df[col].mode().iloc[0] if not player_df[col].mode().empty else player_df[col].iloc[0]
@@ -214,9 +215,13 @@ def process_predictions(chunk, pipeline, is_current_day=False):
     features_selected = pipeline.named_steps['selector'].transform(features_preprocessed)
     chunk['predicted_dk_fpts'] = pipeline.named_steps['model'].predict(features_selected)
     
-    # Remove adjustment based on 5-game average
-    # Debug: Print predictions
-    print("Predictions:", chunk[['Name', 'predicted_dk_fpts']].head())
+    # Adjust predictions to be within the range of 5-game average ± 4
+    chunk['predicted_dk_fpts'] = chunk.apply(
+        lambda row: max(row['5_game_avg'] - 2, min(row['predicted_dk_fpts'], row['5_game_avg'] + 2)), axis=1
+    )
+    
+    # Debug: Print after adjustment
+    print("After adjustment:", chunk[['Name', 'predicted_dk_fpts', '5_game_avg']].head())
     
     return chunk
 
